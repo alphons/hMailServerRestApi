@@ -1,0 +1,185 @@
+html
+{
+	box-sizing: border-box;
+}
+
+*, *:before, *:after
+{
+	box-sizing: inherit;
+}
+
+body
+{
+	line-height: 1;
+	font-family: Arial;
+	padding: 10px;
+}
+
+a
+{
+	text-decoration: none;
+	color: dimgrey;
+}
+
+	a:hover
+	{
+		color: #444;
+	}
+
+#NetProxySpinner
+{
+	display: none;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin-top: -25px;
+	margin-left: -25px;
+	z-index: 1;
+}
+
+
+.panel
+{
+	display: none;
+}
+
+.active input
+{
+	background-color: red;
+}
+
+.hideMe
+{
+	display: none;
+}
+
+.stopfloating
+{
+	clear: both;
+}
+
+.Error
+{
+	color: red;
+}
+
+body
+{
+	font-family: 'Arial';
+}
+
+.Flexing
+{
+	display: flex;
+	flex-wrap: wrap;
+}
+
+#video
+{
+	width: 640px;
+	height: 480px;
+}
+
+video::-webkit-media-controls-timeline
+{
+	display:none;
+}
+
+video::-webkit-media-controls-current-time-display
+{
+	display: none;
+}
+
+video::-webkit-media-controls-time-remaining-display
+{
+	display: none;
+}
+
+body
+{
+	padding: 20px;
+	overflow-x: auto;
+}
+
+.Hidden
+{
+	display: none;
+}
+
+
+#Title
+{
+	display: inline-block;
+	font-size: 120%;
+	font-weight: bold;
+}
+
+.AdminPanel .ui-input-text
+{
+	margin-top: 0;
+	padding: 10px;
+}
+
+.Navigate td
+{
+	width: 100px;
+}
+
+.TableNormal
+{
+	border-collapse: separate;
+	border-spacing: 0;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+	padding: 4px;
+	min-width: 600px;
+}
+
+	.TableNormal td, .TableNormal th
+	{
+		border: 1px solid #ddd;
+		padding: 8px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		height: 26px;
+	}
+
+	.TableNormal tr:nth-child(even)
+	{
+		background-color: #f2f2f2;
+	}
+
+	.TableNormal th
+	{
+		padding-top: 12px;
+		padding-bottom: 12px;
+		text-align: left;
+		background-color: #4CAF50;
+		color: white;
+	}
+
+	.TableNormal tr:hover
+	{
+		background-color: #c0c0ff;
+		cursor: pointer;
+	}
+
+
+tbody.t_Users td.p_Id
+{
+	color: red;
+}
+
+.Search .ui-input-text
+{
+	position: relative;
+	top: -14px;
+	margin: 0px;
+}
+
+.Search #Title
+{
+	position: relative;
+	top: -14px;
+}

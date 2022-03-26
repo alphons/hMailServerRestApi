@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Hello World</title>
+	<link href="./Css/Ui.css" rel="stylesheet" />
+	<link href="./Css/Default.css?5" rel="stylesheet" />
+	<script src="./Scripts/macros.js" defer></script>
+	<script src="./Scripts/netproxy.js" defer></script>
+	<script src="Default.js" defer></script>
+</head>
+<body>
+
+	<h3>Hello World</h3>
+
+	<span id="Button1" class="ui-btn">Click Me</span>
+
+	<script type="text/template" id="TemplateList">
+		{{ this.List.forEach(function (item,index) { }}
+		<div>{{=index}} - {{=item}}</div>
+		{{ }); }}
+	</script>
+
+	<script type="text/template" id="TemplateObjectProperties">
+		<table>
+			<tbody>
+				{{ var data = this; }}
+				{{ Object.getOwnPropertyNames(data).forEach(function (propname) { }}
+				<tr>
+					<td>{{=propname}}</td>
+					<td>{{=data[propname]}}</td>
+				</tr>
+				{{ }); }}
+			</tbody>
+		</table>
+	</script>
+
+	<div id="Output"></div>
+</body>
+</html>

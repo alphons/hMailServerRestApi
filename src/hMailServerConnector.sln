@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32126.317
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hMailServerConnector.CoreWeb", "hMailServerConnector.CoreWeb\hMailServerConnector.CoreWeb.csproj", "{D3E7719A-79E9-46AC-8931-3C5D01751545}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A949EAB4-E270-4D1D-B324-EC33EA04416A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A949EAB4-E270-4D1D-B324-EC33EA04416A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A949EAB4-E270-4D1D-B324-EC33EA04416A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A949EAB4-E270-4D1D-B324-EC33EA04416A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29CB2655-56EE-4C6C-B969-8633EEA4F881}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29CB2655-56EE-4C6C-B969-8633EEA4F881}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29CB2655-56EE-4C6C-B969-8633EEA4F881}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29CB2655-56EE-4C6C-B969-8633EEA4F881}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3E7719A-79E9-46AC-8931-3C5D01751545}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3E7719A-79E9-46AC-8931-3C5D01751545}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3E7719A-79E9-46AC-8931-3C5D01751545}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3E7719A-79E9-46AC-8931-3C5D01751545}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D8521072-39F9-4378-945A-40868628B15A}
+	EndGlobalSection
+EndGlobal
