@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 // (C) 2022 Alphons van der Heijden
 // Date: 2022-03-30
-// Version: 2.1
+// Version: 2.2
 
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -50,7 +50,11 @@ namespace hMailServerConnector.CoreWeb.MiddleWare
 				var arr = jsonNode.AsArray();
 				if (arr.All(x => x is null || x is JsonValue))
 				{
-					dict.Add(jsonNode.GetPath(), new ValueProviderResult(arr.Select(x => x?.ToString()).ToArray()));
+					dict.Add(jsonNode.GetPath(), new ValueProviderResult(
+						arr
+						.Select(x => x?.GetValue<JsonElement>())
+						.Select(y => y?.ValueKind == JsonValueKind.Number ? $"{y?.GetDouble()}".ToString(this.CultureInfo) : y?.ToString())
+						.ToArray()));
 				}
 				else
 				{
@@ -170,5 +174,4 @@ namespace hMailServerConnector.CoreWeb.MiddleWare
 
 
 }
-
 
