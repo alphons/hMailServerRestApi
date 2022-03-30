@@ -1,149 +1,120 @@
+using System.Diagnostics;
+
+// (C) 2022 Alphons van der Heijden
+// Date: 2022-03-30
+// Version: 2.0
 
 using System.Text.Json;
+using System.Text.Json.Nodes;
+
 using System.Globalization;
 
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Diagnostics;
 
 namespace hMailServerConnector.CoreWeb.MiddleWare
 {
 	public class JsonParametersValueProvider : IValueProvider
 	{
-		private readonly JsonElement jElement;
 		private readonly CultureInfo CultureInfo;
-		private readonly Dictionary<string, JsonElement> dict;
+		private readonly int MaxDepth = 100;
+		private readonly Dictionary<string, ValueProviderResult> dict = new();
 
-		private string CurrentPrefix = string.Empty;
-		private int CurrentIndex = 0; // Array index
-
-		public JsonParametersValueProvider(JsonElement jElement, CultureInfo CultureInfo)
+		public JsonParametersValueProvider(JsonNode? jsonNode, CultureInfo CultureInfo)
 		{
 			this.CultureInfo = CultureInfo;
-			this.jElement = jElement;
-			dict = new Dictionary<string, JsonElement>();
+
+			BuildDictionary(0, jsonNode);
+		}
+
+		private void BuildDictionary(int Depth, JsonNode? jsonNode)
+		{
+			//Debug.WriteLine($"**{Depth}");
+			if (jsonNode == null || Depth >= MaxDepth)
+				return;
+
+			Depth++;
+
+			if (jsonNode is JsonObject)
+			{
+				dict.Add(jsonNode.GetPath(), ValueProviderResult.None);
+				var enumerator = jsonNode.AsObject().GetEnumerator();
+				while (enumerator.MoveNext())
+				{
+					if(enumerator.Current.Value != null)
+						BuildDictionary(Depth, enumerator.Current.Value);
+				}
+			}
+			else if(jsonNode is JsonArray)
+			{
+				var arr = jsonNode.AsArray();
+				if (arr.All(x => x is null || x is JsonValue))
+				{
+					dict.Add(jsonNode.GetPath(), new ValueProviderResult(arr.Select(x => "" + x).ToArray()));
+				}
+				else
+				{
+					dict.Add(jsonNode.GetPath(), ValueProviderResult.None);
+					foreach (JsonNode? arrayElement in jsonNode.AsArray())
+					{
+						BuildDictionary(Depth, arrayElement);
+					}
+				}
+			}
+			else if (jsonNode is JsonValue)
+			{
+				var path = jsonNode.GetPath();
+				switch (jsonNode.GetValue<JsonElement>().ValueKind)
+				{
+					case JsonValueKind.Null: // never
+						break;
+					case JsonValueKind.Undefined: // never
+						break;
+					case JsonValueKind.Object: // never
+						BuildDictionary(Depth, jsonNode);
+						break;
+					case JsonValueKind.Array: // never
+						BuildDictionary(Depth, jsonNode);
+						break;
+					case JsonValueKind.String:
+						dict.Add(path, new ValueProviderResult(new string[] { jsonNode.GetValue<string>() }));
+						break;
+					case JsonValueKind.Number:
+						dict.Add(path, new ValueProviderResult(new string[] { jsonNode.GetValue<double>().ToString(this.CultureInfo) }));
+						break;
+					case JsonValueKind.True:
+						dict.Add(path, new ValueProviderResult(new string[] { "true" }));
+						break;
+					case JsonValueKind.False:
+						dict.Add(path, new ValueProviderResult(new string[] { "false" }));
+						break;
+				}
+			}
+			else
+			{
+				Debug.WriteLine($"Not Null, JsonObject, JsonArray, JsonValue Type:{jsonNode}");
+			}
+
+			Depth--;
+			//Debug.WriteLine($"**{Depth}");
 		}
 
 		public bool ContainsPrefix(string prefix)
 		{
-			if (CurrentPrefix == prefix)
-			{
-				CurrentIndex++;
-				Debug.WriteLine($"Prefix: {prefix} Index:{CurrentIndex}");
-				return true;
-			}
-			else
-			{
-				CurrentIndex = 0;
-				CurrentPrefix = prefix;
-				Debug.WriteLine($"Prefix: New:{prefix}");
-			}
+			var exists = dict.ContainsKey($"$.{prefix}");
 
-			if (dict.ContainsKey(prefix))
-				return true;
+			//Debug.WriteLine($"ContainsPrefix('{prefix}') :: {exists}");
 
-			var keys = prefix.Split('.');
-
-			var je = jElement;
-
-			var key = "";
-
-			for (int intI=0;intI<keys.Length;intI++)
-			{
-				if (intI > 0)
-					key += ".";
-				key += keys[intI];
-				if (dict.ContainsKey(key))
-				{
-					je = dict[key];
-					continue;
-				}
-
-				if (je.ValueKind == JsonValueKind.Array)
-				{
-					if (CurrentIndex < je.GetArrayLength())
-					{
-						var jes = je[CurrentIndex];
-						dict.Add(key, jes);
-						je = jes;
-					}
-					else
-					{
-						return false;
-					}
-				}
-				else
-				{
-
-					if (je.TryGetProperty(keys[intI], out JsonElement jes))
-					{
-						dict.Add(key, jes);
-						je = jes;
-					}
-					else
-					{
-						return false;
-					}
-				}
-			}
-			return true;
+			return exists;
 		}
 
 		public ValueProviderResult GetValue(string key)
 		{
-			//Debug.WriteLine($"GetValue Key:{key}");
+			//Debug.WriteLine($"GetValue('{key}')");
 
-			var parentkey = key;
-			var intI = key.LastIndexOf('.');
-
-			if (intI > 0)
-			{
-				parentkey = key.Substring(0, intI);
-				key = key.Substring(intI + 1);
-			}
-
-			var je = jElement;
-
-			if (dict.ContainsKey(parentkey))
-				je = dict[parentkey];
+			if (dict.TryGetValue($"$.{key}", out ValueProviderResult val))
+				return val;
 			else
 				return ValueProviderResult.None;
-			JsonElement jes;
-			if (je.ValueKind == JsonValueKind.Array)
-			{
-				Debug.WriteLine($"GetValue (Array) {parentkey}[{CurrentIndex}].{key}");
-				if (CurrentIndex < je.GetArrayLength())
-				{
-					if (!je[CurrentIndex].TryGetProperty(key, out jes))
-						return ValueProviderResult.None;
-				}
-				else
-				{
-					return ValueProviderResult.None;
-				}
-			}
-			else if(je.ValueKind == JsonValueKind.Object)
-			{
-				Debug.WriteLine($"GetValue (object) {parentkey}.{key}");
-				if (!je.TryGetProperty(key, out jes))
-					return ValueProviderResult.None;
-			}
-			else
-			{
-				Debug.WriteLine($"GetValue (value) {parentkey}.{key}");
-				jes = je;
-			}
-
-			ValueProviderResult result = jes.ValueKind switch
-			{
-				JsonValueKind.Array => new ValueProviderResult(jes.EnumerateArray()
-										.Select(x => x.ValueKind == JsonValueKind.Null ? null : x.ValueKind == JsonValueKind.String ? x.GetString() : x.GetRawText())
-										.ToArray(), this.CultureInfo),
-				JsonValueKind.String => new ValueProviderResult(jes.GetString(), this.CultureInfo),
-				JsonValueKind.Null => new ValueProviderResult(default, this.CultureInfo),
-				_ => new ValueProviderResult(je.GetRawText(), this.CultureInfo),
-			};
-
-			return result;
 		}
 	}
 
@@ -151,31 +122,21 @@ namespace hMailServerConnector.CoreWeb.MiddleWare
 	{
 		private readonly CultureInfo CultureInfo;
 
-		public JsonParametersValueProviderFactory(string CultureName) : base()
-		{
-			this.CultureInfo = new CultureInfo(CultureName);
-		}
-
-		public JsonParametersValueProviderFactory() : base()
-		{
-			this.CultureInfo = CultureInfo.InvariantCulture;
-		}
-
 		private static async Task AddValueProviderAsync(ValueProviderFactoryContext context, CultureInfo CultureInfo)
 		{
 			try
 			{
-				var jElement = await JsonSerializer.DeserializeAsync<JsonElement>(context.ActionContext.HttpContext.Request.Body);
-				context.ValueProviders.Add(new JsonParametersValueProvider(jElement, CultureInfo));
+				var jsonNode = await JsonSerializer.DeserializeAsync<JsonNode>(context.ActionContext.HttpContext.Request.Body);
+				context.ValueProviders.Add(new JsonParametersValueProvider(jsonNode, CultureInfo));
 			}
-			catch(Exception eee)
+			catch (Exception eee)
 			{
 				// Not valid json, dont bother
 				Debug.WriteLine(eee.Message);
 			}
 		}
 
-		public Task CreateValueProviderAsync(ValueProviderFactoryContext context)
+		Task IValueProviderFactory.CreateValueProviderAsync(ValueProviderFactoryContext context)
 		{
 			if (context == null)
 				throw new ArgumentNullException(nameof(context));
@@ -192,6 +153,17 @@ namespace hMailServerConnector.CoreWeb.MiddleWare
 			}
 			return Task.CompletedTask;
 		}
+		public JsonParametersValueProviderFactory(string CultureName) : base()
+		{
+			this.CultureInfo = new CultureInfo(CultureName);
+		}
+
+		public JsonParametersValueProviderFactory() : base()
+		{
+			this.CultureInfo = CultureInfo.InvariantCulture;
+		}
+
+
 	}
 
 
