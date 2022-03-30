@@ -1,8 +1,9 @@
+
 using System.Diagnostics;
 
 // (C) 2022 Alphons van der Heijden
 // Date: 2022-03-30
-// Version: 2.0
+// Version: 2.1
 
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -19,14 +20,14 @@ namespace hMailServerConnector.CoreWeb.MiddleWare
 		private readonly int MaxDepth = 100;
 		private readonly Dictionary<string, ValueProviderResult> dict = new();
 
-		public JsonParametersValueProvider(JsonNode? jsonNode, CultureInfo CultureInfo)
+		public JsonParametersValueProvider(JsonNode jsonNode, CultureInfo CultureInfo)
 		{
 			this.CultureInfo = CultureInfo;
 
 			BuildDictionary(0, jsonNode);
 		}
 
-		private void BuildDictionary(int Depth, JsonNode? jsonNode)
+		private void BuildDictionary(int Depth, JsonNode jsonNode)
 		{
 			//Debug.WriteLine($"**{Depth}");
 			if (jsonNode == null || Depth >= MaxDepth)
@@ -40,21 +41,21 @@ namespace hMailServerConnector.CoreWeb.MiddleWare
 				var enumerator = jsonNode.AsObject().GetEnumerator();
 				while (enumerator.MoveNext())
 				{
-					if(enumerator.Current.Value != null)
+					if (enumerator.Current.Value != null)
 						BuildDictionary(Depth, enumerator.Current.Value);
 				}
 			}
-			else if(jsonNode is JsonArray)
+			else if (jsonNode is JsonArray)
 			{
 				var arr = jsonNode.AsArray();
 				if (arr.All(x => x is null || x is JsonValue))
 				{
-					dict.Add(jsonNode.GetPath(), new ValueProviderResult(arr.Select(x => "" + x).ToArray()));
+					dict.Add(jsonNode.GetPath(), new ValueProviderResult(arr.Select(x => x?.ToString()).ToArray()));
 				}
 				else
 				{
 					dict.Add(jsonNode.GetPath(), ValueProviderResult.None);
-					foreach (JsonNode? arrayElement in jsonNode.AsArray())
+					foreach (JsonNode arrayElement in jsonNode.AsArray())
 					{
 						BuildDictionary(Depth, arrayElement);
 					}
@@ -169,4 +170,5 @@ namespace hMailServerConnector.CoreWeb.MiddleWare
 
 
 }
+
 
