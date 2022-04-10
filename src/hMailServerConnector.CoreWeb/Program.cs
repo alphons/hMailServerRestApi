@@ -4,6 +4,8 @@ using Microsoft.Extensions.Hosting.WindowsServices;
 
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
+using Microsoft.AspNetCore.Mvc.ModelBinding.MultiParameter;
+
 using hMailServerConnector.CoreWeb.MiddleWare;
 
 using hMailServerConnector.CoreWeb.DataService;
