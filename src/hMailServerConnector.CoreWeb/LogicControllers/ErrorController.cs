@@ -139,6 +139,7 @@ namespace hMailServerConnector.CoreWeb.LogicControllers
 		private async Task<List<ErrorManager.ErrorLog>> GetErrorsInternalAsync(int Page, string Search)
 		{
 #pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
 			return (await errrorManager.ErrorLogsAsync()).Where(x =>
 			(x.Message != null && x.Message.Contains(Search)) ||
 			(x.Name != null && x.Name.Contains(Search)) ||
@@ -148,6 +149,7 @@ namespace hMailServerConnector.CoreWeb.LogicControllers
 				.Skip(Page * PageSize)
 				.Take(PageSize)
 				.ToList();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 #pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
 		}
 
