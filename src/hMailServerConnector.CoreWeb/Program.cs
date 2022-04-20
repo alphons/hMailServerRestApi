@@ -2,8 +2,6 @@
 // dotnet add package Microsoft.Extensions.Hosting.WindowsServices --version 6.0.0
 using Microsoft.Extensions.Hosting.WindowsServices;
 
-using Microsoft.AspNetCore.Mvc.ModelBinding.MultiParameter;
-
 using hMailServerConnector.CoreWeb.DataService;
 
 AppDomain.CurrentDomain.UnhandledException += (s, e) =>
@@ -47,6 +45,8 @@ services.AddMvcCore().WithMultiParameterModelBinding();
 
 var app = builder.Build();
 
+app.UseRouting();
+
 errorManager.Info("Startup");
 
 app.UseResponseCompression();
@@ -56,12 +56,10 @@ app.UseExceptionHandler("/internalerror");
 
 //app.UseHttpsRedirection();
 
-app.UseRouting();
-
-app.MapControllers();
-
 app.UseDefaultFiles();
 
 app.UseStaticFiles();
+
+app.MapControllers();
 
 app.Run();
